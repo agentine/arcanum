@@ -90,6 +90,15 @@ HASH_ASN1: dict[str, bytes] = {
     ]),
 }
 
+# Expected digest sizes in bytes per algorithm.
+HASH_LENGTHS: dict[str, int] = {
+    "MD5": 16,
+    "SHA-1": 20,
+    "SHA-256": 32,
+    "SHA-384": 48,
+    "SHA-512": 64,
+}
+
 # Mapping from hash name to hashlib name
 HASH_METHODS: dict[str, str] = {
     "MD5": "md5",
@@ -261,8 +270,10 @@ def decrypt(crypto: bytes, priv_key: PrivateKey) -> bytes:
     """
     keylength = common.byte_size(priv_key.n)
 
-    # Decrypt using blinding
+    # Validate input range per RFC 8017 step 1: ciphertext integer must be in [0, n).
     encrypted_int = transform.bytes_to_int(crypto)
+    if encrypted_int >= priv_key.n:
+        raise DecryptionError("Decryption failed")
     decrypted_int = priv_key.blinded_decrypt(encrypted_int)
     padded = transform.int_to_bytes(decrypted_int, fill_size=keylength)
 
@@ -362,6 +373,13 @@ def sign_hash(
             f"Supported: {', '.join(sorted(HASH_ASN1))}"
         )
 
+    expected_len = HASH_LENGTHS[hash_method]
+    if len(hash_value) != expected_len:
+        raise ValueError(
+            f"Hash length mismatch for {hash_method}: "
+            f"expected {expected_len} bytes, got {len(hash_value)}"
+        )
+
     keylength = common.byte_size(priv_key.n)
 
     # Build DigestInfo: ASN.1 prefix + hash
@@ -398,8 +416,12 @@ def verify(
     """
     keylength = common.byte_size(pub_key.n)
 
-    # "Decrypt" the signature with the public key
+    # Validate input range per RFC 8017: signature integer must be in [0, n).
     sig_int = transform.bytes_to_int(signature)
+    if sig_int >= pub_key.n:
+        raise VerificationError("Verification failed")
+
+    # "Decrypt" the signature with the public key
     decrypted_int = pow(sig_int, pub_key.e, pub_key.n)
     padded = transform.int_to_bytes(decrypted_int, fill_size=keylength)
 
@@ -460,8 +482,12 @@ def find_signature_hash(
     """
     keylength = common.byte_size(pub_key.n)
 
-    # "Decrypt" the signature with the public key
+    # Validate input range per RFC 8017: signature integer must be in [0, n).
     sig_int = transform.bytes_to_int(signature)
+    if sig_int >= pub_key.n:
+        raise VerificationError("Verification failed")
+
+    # "Decrypt" the signature with the public key
     decrypted_int = pow(sig_int, pub_key.e, pub_key.n)
     padded = transform.int_to_bytes(decrypted_int, fill_size=keylength)
 
