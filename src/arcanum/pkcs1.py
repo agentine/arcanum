@@ -266,22 +266,39 @@ def decrypt(crypto: bytes, priv_key: PrivateKey) -> bytes:
     decrypted_int = priv_key.blinded_decrypt(encrypted_int)
     padded = transform.int_to_bytes(decrypted_int, fill_size=keylength)
 
-    # Verify and strip PKCS#1 v1.5 type 2 padding
-    # Format: 0x00 0x02 [non-zero padding] 0x00 [message]
+    # Verify and strip PKCS#1 v1.5 type 2 padding in constant time.
+    # Format: 0x00 0x02 [non-zero padding bytes, >= 8] 0x00 [message]
+    #
+    # All bytes are processed unconditionally to prevent Bleichenbacher-style
+    # padding oracle attacks via timing side channels.
+    valid = 1
+
+    # Length check
     if len(padded) != keylength:
         raise DecryptionError("Decryption failed")
 
-    if padded[0:2] != b"\x00\x02":
-        raise DecryptionError("Decryption failed")
+    # Header must be 0x00 0x02
+    valid &= 1 if padded[0] == 0x00 else 0
+    valid &= 1 if padded[1] == 0x02 else 0
 
-    # Find the 0x00 separator after the padding
-    try:
-        sep_idx = padded.index(b"\x00", 2)
-    except ValueError:
-        raise DecryptionError("Decryption failed")
+    # Scan all bytes to find the first 0x00 separator after position 1.
+    # We process every byte unconditionally.
+    sep_idx = 0
+    found_sep = 0
+    for i in range(2, len(padded)):
+        is_zero = 1 if padded[i] == 0x00 else 0
+        # Record the first separator position (only when not yet found).
+        is_first = is_zero & (1 - found_sep)
+        sep_idx = sep_idx | (i * is_first)
+        found_sep |= is_zero
 
-    # Padding must be at least 8 bytes
-    if sep_idx < 10:  # 2 (header) + 8 (min padding) = index 10
+    # Must have found a separator.
+    valid &= found_sep
+
+    # Padding must be at least 8 bytes: separator at index >= 10.
+    valid &= 1 if sep_idx >= 10 else 0
+
+    if valid != 1:
         raise DecryptionError("Decryption failed")
 
     return padded[sep_idx + 1:]
