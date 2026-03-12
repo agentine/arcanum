@@ -7,8 +7,6 @@ and SEQUENCE tags (no external dependencies).
 
 from __future__ import annotations
 
-import typing
-
 from arcanum import common, pem, prime, randnum
 
 # ---------------------------------------------------------------------------
@@ -369,6 +367,90 @@ class PrivateKey(AbstractKey):
             raise ValueError(f"Expected 'RSA PRIVATE KEY' marker, got '{marker}'")
         return cls._load_pkcs1_der(der_bytes)
 
+    # ------------------------------------------------------------------
+    # PKCS#8 (PrivateKeyInfo) serialization
+    # ------------------------------------------------------------------
+
+    def _save_pkcs8_der(self) -> bytes:
+        """Serialize to PKCS#8 DER format (PrivateKeyInfo).
+
+        PrivateKeyInfo ::= SEQUENCE {
+            version             INTEGER (0),
+            privateKeyAlgorithm AlgorithmIdentifier,
+            privateKey          OCTET STRING (contains PKCS#1 RSAPrivateKey)
+        }
+        """
+        pkcs1_der = self._save_pkcs1_der()
+
+        # AlgorithmIdentifier: SEQUENCE { OID rsaEncryption, NULL }
+        alg_id = _encode_der_sequence(_OID_RSA_ENCRYPTION + _DER_NULL)
+
+        # OCTET STRING wrapping the PKCS#1 key
+        octet_string = bytes([0x04]) + _encode_der_length(len(pkcs1_der)) + pkcs1_der
+
+        contents = (
+            _encode_der_integer(0)  # version
+            + alg_id
+            + octet_string
+        )
+        return _encode_der_sequence(contents)
+
+    def save_pkcs8(self, format: str = "PEM") -> bytes:
+        """Serialize the private key to PKCS#8 format.
+
+        Args:
+            format: ``"PEM"`` or ``"DER"``.
+
+        Returns:
+            The serialized key bytes.
+        """
+        der = self._save_pkcs8_der()
+        if format == "DER":
+            return der
+        return pem.save_pem(der, "PRIVATE KEY")
+
+    @classmethod
+    def _load_pkcs8_der(cls, keyfile: bytes) -> PrivateKey:
+        """Load a PKCS#8 DER-encoded private key (PrivateKeyInfo)."""
+        outer_data, _ = _decode_der_sequence(keyfile)
+        offset = 0
+
+        # version INTEGER (must be 0)
+        version, offset = _decode_der_integer(outer_data, offset)
+        if version != 0:
+            raise ValueError(f"Unsupported PKCS#8 version: {version}")
+
+        # AlgorithmIdentifier SEQUENCE — skip it
+        if outer_data[offset] != _TAG_SEQUENCE:
+            raise ValueError("Expected AlgorithmIdentifier SEQUENCE")
+        _alg_data, offset = _decode_der_sequence(outer_data, offset)
+
+        # OCTET STRING containing the PKCS#1 RSAPrivateKey
+        if outer_data[offset] != 0x04:
+            raise ValueError("Expected OCTET STRING tag")
+        octet_len, offset = _decode_der_length(outer_data, offset + 1)
+        pkcs1_der = outer_data[offset : offset + octet_len]
+
+        return cls._load_pkcs1_der(pkcs1_der)
+
+    @classmethod
+    def load_pkcs8(cls, keyfile: bytes, format: str = "PEM") -> PrivateKey:
+        """Load a PKCS#8 private key.
+
+        Args:
+            keyfile: The key data.
+            format: ``"PEM"`` or ``"DER"``.
+
+        Returns:
+            The loaded PrivateKey.
+        """
+        if format == "DER":
+            return cls._load_pkcs8_der(keyfile)
+        marker, der_bytes = pem.load_pem(keyfile)
+        if marker != "PRIVATE KEY":
+            raise ValueError(f"Expected 'PRIVATE KEY' marker, got '{marker}'")
+        return cls._load_pkcs8_der(der_bytes)
+
 
 # ---------------------------------------------------------------------------
 # Key generation
@@ -454,10 +536,11 @@ def newkeys(
     if nbits < 16:
         raise ValueError("Key size must be at least 16 bits")
 
-    # poolsize is accepted for API compatibility but not yet used
-    typing.cast(None, poolsize)
-
-    p, q = _find_p_q(nbits, accurate=accurate, exponent=exponent)
+    if poolsize > 1:
+        from arcanum.parallel import _find_p_q_parallel
+        p, q = _find_p_q_parallel(nbits, poolsize, accurate=accurate, exponent=exponent)
+    else:
+        p, q = _find_p_q(nbits, accurate=accurate, exponent=exponent)
     n = p * q
     phi_n = (p - 1) * (q - 1)
 
