@@ -1,0 +1,47 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "arcanum"
+version = "0.1.0"
+description = "Pure-Python RSA encryption, signing, and key generation — drop-in python-rsa replacement"
+requires-python = ">=3.9"
+license = "MIT"
+keywords = ["rsa", "crypto", "encryption", "signing", "pkcs1", "pure-python"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Topic :: Security :: Cryptography",
+    "Typing :: Typed",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "License :: OSI Approved :: MIT License",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "mypy",
+    "ruff",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/arcanum"]
+
+[tool.mypy]
+strict = true
+python_version = "3.9"
+
+[tool.ruff]
+target-version = "py39"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "SIM"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
