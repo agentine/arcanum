@@ -195,17 +195,23 @@ class PublicKey(AbstractKey):
         outer_data, _ = _decode_der_sequence(keyfile)
         offset = 0
 
-        # AlgorithmIdentifier SEQUENCE — skip it
+        # AlgorithmIdentifier SEQUENCE — validate rsaEncryption OID
         if outer_data[offset] != _TAG_SEQUENCE:
             raise ValueError("Expected AlgorithmIdentifier SEQUENCE")
-        _alg_data, offset = _decode_der_sequence(outer_data, offset)
+        alg_data, offset = _decode_der_sequence(outer_data, offset)
+        if not alg_data.startswith(_OID_RSA_ENCRYPTION):
+            raise ValueError(
+                "AlgorithmIdentifier is not rsaEncryption"
+            )
 
         # BIT STRING containing the RSAPublicKey
         if outer_data[offset] != 0x03:
             raise ValueError("Expected BIT STRING tag")
         bs_length, offset = _decode_der_length(outer_data, offset + 1)
-        # First byte of BIT STRING is the number of unused bits (should be 0)
-        _unused_bits = outer_data[offset]
+        # First byte of BIT STRING is the number of unused bits (must be 0 for RSA)
+        unused_bits = outer_data[offset]
+        if unused_bits != 0:
+            raise ValueError(f"BIT STRING unused bits must be 0 for RSA, got {unused_bits}")
         rsa_pubkey_der = outer_data[offset + 1 : offset + bs_length]
 
         return cls._load_pkcs1_der(rsa_pubkey_der)
@@ -420,10 +426,14 @@ class PrivateKey(AbstractKey):
         if version != 0:
             raise ValueError(f"Unsupported PKCS#8 version: {version}")
 
-        # AlgorithmIdentifier SEQUENCE — skip it
+        # AlgorithmIdentifier SEQUENCE — validate rsaEncryption OID
         if outer_data[offset] != _TAG_SEQUENCE:
             raise ValueError("Expected AlgorithmIdentifier SEQUENCE")
-        _alg_data, offset = _decode_der_sequence(outer_data, offset)
+        alg_data, offset = _decode_der_sequence(outer_data, offset)
+        if not alg_data.startswith(_OID_RSA_ENCRYPTION):
+            raise ValueError(
+                "PKCS#8 AlgorithmIdentifier is not rsaEncryption"
+            )
 
         # OCTET STRING containing the PKCS#1 RSAPrivateKey
         if outer_data[offset] != 0x04:

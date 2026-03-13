@@ -7,6 +7,7 @@ Uses SHA-256 as the default hash function and MGF1 for mask generation.
 from __future__ import annotations
 
 import hashlib
+import hmac
 import secrets
 
 from arcanum import common, transform
@@ -148,7 +149,7 @@ def decrypt(
     # Check Y == 0 and lHash' == lHash (constant-time).
     valid = 1
     valid &= 1 if y == 0 else 0
-    valid &= 1 if l_hash_prime == l_hash else 0
+    valid &= 1 if hmac.compare_digest(l_hash_prime, l_hash) else 0
 
     # Find the 0x01 separator.
     separator_idx = -1

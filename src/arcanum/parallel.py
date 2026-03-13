@@ -63,7 +63,7 @@ def newkeys(
     accurate: bool = False,
     poolsize: int = 2,
     exponent: int = 65537,
-) -> tuple:
+) -> "tuple[PublicKey, PrivateKey]":
     """Generate an RSA key pair using parallel prime generation.
 
     Args:
