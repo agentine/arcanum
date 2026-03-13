@@ -98,6 +98,26 @@ from arcanum import compat as rsa
 - **OAEP support**: arcanum adds PKCS#1 v2.1 OAEP encryption, which python-rsa does not provide.
 - **PKCS#8**: arcanum can import/export PKCS#8 private keys, enabling interop with OpenSSL `openssl genpkey` output.
 
+## Exceptions
+
+```python
+try:
+    plaintext = arcanum.decrypt(ciphertext, priv)
+except arcanum.DecryptionError:
+    pass  # invalid ciphertext or wrong key
+
+try:
+    arcanum.verify(message, signature, pub)
+except arcanum.VerificationError:
+    pass  # signature did not match
+```
+
+| Exception | Raised when |
+|---|---|
+| `arcanum.CryptoError` | Base class for all arcanum errors |
+| `arcanum.DecryptionError` | Decryption fails (wrong key or corrupt ciphertext) |
+| `arcanum.VerificationError` | Signature verification fails |
+
 ## Security Notes
 
 arcanum is a **pure-Python** RSA library intended for education, compatibility, and environments where installing C extensions is impractical.
@@ -117,11 +137,33 @@ arcanum is a **pure-Python** RSA library intended for education, compatibility, 
 - RSA blinding is always applied to private-key operations to mitigate timing side channels on modular exponentiation.
 - For high-security applications, prefer `cryptography` with hardware-backed constant-time primitives.
 
+## Benchmarks
+
+Compare arcanum key generation performance against python-rsa:
+
+```bash
+pip install rsa  # optional, enables comparison against python-rsa
+python benchmarks/bench_keygen.py 2048 5
+```
+
+For parallel key generation:
+
+```python
+pub, priv = arcanum.newkeys(2048, poolsize=4)
+```
+
 ## Running Tests
 
 ```bash
 pip install -e ".[dev]"
 pytest tests/ -v
+```
+
+Type checking and linting:
+
+```bash
+mypy src/arcanum/
+ruff check src/arcanum/
 ```
 
 ## License
