@@ -7,8 +7,12 @@ is distributed across multiple CPU cores for faster key generation.
 from __future__ import annotations
 
 import multiprocessing
+from typing import TYPE_CHECKING
 
 from arcanum import prime
+
+if TYPE_CHECKING:
+    from arcanum.key import PrivateKey, PublicKey
 
 
 def _generate_prime(nbits: int) -> int:
