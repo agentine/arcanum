@@ -1,8 +1,8 @@
-"""Tests for arcanum.prime — primality testing and prime generation."""
+"""Tests for ciphertrust.prime — primality testing and prime generation."""
 
 import pytest
 
-from arcanum.prime import (
+from ciphertrust.prime import (
     are_relatively_prime,
     getprime,
     is_prime,

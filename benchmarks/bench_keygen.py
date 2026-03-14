@@ -1,4 +1,4 @@
-"""Benchmark: arcanum key generation vs python-rsa (if installed)."""
+"""Benchmark: ciphertrust key generation vs python-rsa (if installed)."""
 
 from __future__ import annotations
 
@@ -7,13 +7,13 @@ import statistics
 import sys
 
 
-def bench_arcanum(bits: int, rounds: int) -> list[float]:
-    import arcanum
+def bench_ciphertrust(bits: int, rounds: int) -> list[float]:
+    import ciphertrust
 
     times: list[float] = []
     for _ in range(rounds):
         t0 = time.perf_counter()
-        arcanum.newkeys(bits)
+        ciphertrust.newkeys(bits)
         times.append(time.perf_counter() - t0)
     return times
 
@@ -43,9 +43,9 @@ def main() -> None:
 
     print(f"Benchmarking {bits}-bit RSA key generation ({rounds} rounds)\n")
 
-    print("arcanum:")
-    arc_times = bench_arcanum(bits, rounds)
-    report("arcanum", arc_times)
+    print("ciphertrust:")
+    arc_times = bench_ciphertrust(bits, rounds)
+    report("ciphertrust", arc_times)
 
     try:
         print("\npython-rsa:")
@@ -53,7 +53,7 @@ def main() -> None:
         report("python-rsa", rsa_times)
 
         speedup = statistics.mean(rsa_times) / statistics.mean(arc_times)
-        print(f"\n  arcanum is {speedup:.2f}x {'faster' if speedup > 1 else 'slower'} than python-rsa")
+        print(f"\n  ciphertrust is {speedup:.2f}x {'faster' if speedup > 1 else 'slower'} than python-rsa")
     except ImportError:
         print("\npython-rsa not installed — skipping comparison")
         print("  pip install rsa   # to enable comparison")

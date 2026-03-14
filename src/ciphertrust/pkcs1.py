@@ -15,8 +15,8 @@ import hmac
 import secrets
 import typing
 
-from arcanum import common, transform
-from arcanum.key import PrivateKey, PublicKey
+from ciphertrust import common, transform
+from ciphertrust.key import PrivateKey, PublicKey
 
 # ---------------------------------------------------------------------------
 # Exception hierarchy

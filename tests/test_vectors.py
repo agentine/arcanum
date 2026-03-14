@@ -4,12 +4,12 @@ Uses a small, fixed RSA keypair to verify deterministic behavior
 of modular exponentiation, key serialization, and PEM round-trips.
 """
 
-from arcanum.core import fast_pow
-from arcanum.key import PrivateKey, PublicKey
-from arcanum.pem import load_pem, save_pem
-from arcanum.transform import bytes_to_int, int_to_bytes
+from ciphertrust.core import fast_pow
+from ciphertrust.key import PrivateKey, PublicKey
+from ciphertrust.pem import load_pem, save_pem
+from ciphertrust.transform import bytes_to_int, int_to_bytes
 
-# Fixed 512-bit RSA test keypair (pre-generated with arcanum.key.newkeys)
+# Fixed 512-bit RSA test keypair (pre-generated with ciphertrust.key.newkeys)
 _TEST_P = (
     0xEA8B31BA1705B73686286B68EA979A367F493E5A530C8ACA0E5ED9545D9BD9B9
 )

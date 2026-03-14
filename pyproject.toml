@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "arcanum"
+name = "ciphertrust"
 version = "0.1.0"
 description = "Pure-Python RSA encryption, signing, and key generation — drop-in python-rsa replacement"
 requires-python = ">=3.9"
@@ -23,8 +23,8 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/agentine/arcanum"
-Repository = "https://github.com/agentine/arcanum"
+Homepage = "https://github.com/agentine/ciphertrust"
+Repository = "https://github.com/agentine/ciphertrust"
 
 [project.optional-dependencies]
 dev = [
@@ -34,7 +34,7 @@ dev = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/arcanum"]
+packages = ["src/ciphertrust"]
 
 [tool.mypy]
 strict = true

@@ -1,4 +1,4 @@
-"""Tests for arcanum.pkcs1 — PKCS#1 v1.5 operations.
+"""Tests for ciphertrust.pkcs1 — PKCS#1 v1.5 operations.
 
 Tests cover encryption/decryption, signing/verification, hash computation,
 exception hierarchy, padding, and RFC 8017 conformance.
@@ -9,8 +9,8 @@ import io
 
 import pytest
 
-from arcanum.key import PrivateKey, PublicKey, newkeys
-from arcanum.pkcs1 import (
+from ciphertrust.key import PrivateKey, PublicKey, newkeys
+from ciphertrust.pkcs1 import (
     HASH_ASN1,
     HASH_METHODS,
     CryptoError,
@@ -169,7 +169,7 @@ class TestEncryptDecrypt:
     def test_round_trip_with_fixed_key(self) -> None:
         pub = _test_pub()
         priv = _test_priv()
-        message = b"arcanum"
+        message = b"ciphertrust"
         ciphertext = encrypt(message, pub)
         plaintext = decrypt(ciphertext, priv)
         assert plaintext == message
@@ -184,7 +184,7 @@ class TestEncryptDecrypt:
     def test_max_length_message(self) -> None:
         """Test with maximum-length message for 512-bit key."""
         pub, priv = newkeys(512)
-        from arcanum.common import byte_size
+        from ciphertrust.common import byte_size
         keylength = byte_size(pub.n)
         max_msg = keylength - 11
         message = b"A" * max_msg
@@ -194,7 +194,7 @@ class TestEncryptDecrypt:
 
     def test_message_too_long_raises(self) -> None:
         pub, _priv = newkeys(512)
-        from arcanum.common import byte_size
+        from ciphertrust.common import byte_size
         keylength = byte_size(pub.n)
         message = b"A" * (keylength - 10)  # 1 byte too many
         with pytest.raises(OverflowError, match="maximum is"):
@@ -202,7 +202,7 @@ class TestEncryptDecrypt:
 
     def test_ciphertext_length_equals_key_length(self) -> None:
         pub, _priv = newkeys(512)
-        from arcanum.common import byte_size
+        from ciphertrust.common import byte_size
         keylength = byte_size(pub.n)
         ciphertext = encrypt(b"test", pub)
         assert len(ciphertext) == keylength
@@ -270,7 +270,7 @@ class TestSignVerify:
     def test_sign_verify_with_fixed_key(self) -> None:
         pub = _test_pub()
         priv = _test_priv()
-        message = b"arcanum signing test"
+        message = b"ciphertrust signing test"
         signature = sign(message, priv, "SHA-256")
         result = verify(message, signature, pub)
         assert result == "SHA-256"
@@ -308,7 +308,7 @@ class TestSignVerify:
 
     def test_signature_length_equals_key_length(self) -> None:
         pub, priv = newkeys(1024)
-        from arcanum.common import byte_size
+        from ciphertrust.common import byte_size
         keylength = byte_size(pub.n)
         signature = sign(b"test", priv, "SHA-256")
         assert len(signature) == keylength
@@ -449,7 +449,7 @@ class TestConstantTimeComparison:
 class TestPKCS1Padding:
     def test_type2_padding_structure(self) -> None:
         """Verify the structure of type 2 (encryption) padding."""
-        from arcanum.pkcs1 import _pad_for_encryption
+        from ciphertrust.pkcs1 import _pad_for_encryption
 
         message = b"test"
         target_length = 64  # 512-bit key
@@ -468,7 +468,7 @@ class TestPKCS1Padding:
 
     def test_type1_padding_structure(self) -> None:
         """Verify the structure of type 1 (signing) padding."""
-        from arcanum.pkcs1 import _pad_for_signing
+        from ciphertrust.pkcs1 import _pad_for_signing
 
         message = b"test digest info"
         target_length = 64
@@ -486,7 +486,7 @@ class TestPKCS1Padding:
 
     def test_type2_random_padding_varies(self) -> None:
         """Type 2 padding should use random bytes (different each time)."""
-        from arcanum.pkcs1 import _pad_for_encryption
+        from ciphertrust.pkcs1 import _pad_for_encryption
 
         padded1 = _pad_for_encryption(b"test", 64)
         padded2 = _pad_for_encryption(b"test", 64)
@@ -496,7 +496,7 @@ class TestPKCS1Padding:
         assert padded1[-4:] == padded2[-4:] == b"test"
 
     def test_message_too_long_for_padding(self) -> None:
-        from arcanum.pkcs1 import _pad_for_encryption
+        from ciphertrust.pkcs1 import _pad_for_encryption
 
         # target_length = 20, max message = 20 - 11 = 9
         with pytest.raises(OverflowError):

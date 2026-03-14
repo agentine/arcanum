@@ -9,10 +9,10 @@ from __future__ import annotations
 import multiprocessing
 from typing import TYPE_CHECKING
 
-from arcanum import prime
+from ciphertrust import prime
 
 if TYPE_CHECKING:
-    from arcanum.key import PrivateKey, PublicKey
+    from ciphertrust.key import PrivateKey, PublicKey
 
 
 def _generate_prime(nbits: int) -> int:
@@ -30,7 +30,7 @@ def _find_p_q_parallel(
 
     Generates candidate primes in parallel and picks the first valid pair.
     """
-    from arcanum import common
+    from ciphertrust import common
 
     shift = nbits // 2
     pbits = nbits - shift
@@ -79,7 +79,7 @@ def newkeys(
     Returns:
         A tuple of ``(PublicKey, PrivateKey)``.
     """
-    from arcanum.key import PublicKey, PrivateKey
+    from ciphertrust.key import PublicKey, PrivateKey
 
     if nbits < 16:
         raise ValueError("Key size must be at least 16 bits")

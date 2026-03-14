@@ -1,8 +1,8 @@
-"""Tests for arcanum.transform — byte/integer conversions."""
+"""Tests for ciphertrust.transform — byte/integer conversions."""
 
 import pytest
 
-from arcanum.transform import bytes_to_int, int_to_bytes
+from ciphertrust.transform import bytes_to_int, int_to_bytes
 
 
 class TestBytesToInt:

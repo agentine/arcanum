@@ -10,8 +10,8 @@ import hashlib
 import hmac
 import secrets
 
-from arcanum import common, transform
-from arcanum.key import PrivateKey, PublicKey
+from ciphertrust import common, transform
+from ciphertrust.key import PrivateKey, PublicKey
 
 
 # ---------------------------------------------------------------------------
@@ -116,7 +116,7 @@ def decrypt(
     Raises:
         DecryptionError: If decryption fails (constant-time failure to prevent oracle attacks).
     """
-    from arcanum.pkcs1 import DecryptionError
+    from ciphertrust.pkcs1 import DecryptionError
 
     hash_name = hash_method.lower().replace("-", "")
     h_len = hashlib.new(hash_name).digest_size

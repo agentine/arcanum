@@ -1,10 +1,10 @@
-# Arcanum — Pure-Python RSA Cryptography
+# Ciphertrust — Pure-Python RSA Cryptography
 
 ## Overview
 
-**Arcanum** is a modern, pure-Python RSA implementation that replaces the archived [python-rsa](https://github.com/sybrenstuvel/python-rsa) package (~377M monthly PyPI downloads). Python-rsa was archived by its sole maintainer on April 20, 2025, leaving the Python ecosystem without an actively maintained pure-Python RSA library.
+**Ciphertrust** is a modern, pure-Python RSA implementation that replaces the archived [python-rsa](https://github.com/sybrenstuvel/python-rsa) package (~377M monthly PyPI downloads). Python-rsa was archived by its sole maintainer on April 20, 2025, leaving the Python ecosystem without an actively maintained pure-Python RSA library.
 
-**Package name:** `arcanum` (verified available on PyPI)
+**Package name:** `ciphertrust` (verified available on PyPI)
 
 ## Target
 
@@ -42,20 +42,20 @@ The `cryptography` package provides RSA via OpenSSL/C bindings but requires a **
 ### Core Functions
 
 ```python
-arcanum.newkeys(nbits: int, accurate: bool = False, poolsize: int = 1, exponent: int = 65537) -> tuple[PublicKey, PrivateKey]
-arcanum.encrypt(message: bytes, pub_key: PublicKey) -> bytes          # PKCS#1 v1.5
-arcanum.decrypt(crypto: bytes, priv_key: PrivateKey) -> bytes         # PKCS#1 v1.5
-arcanum.sign(message: bytes, priv_key: PrivateKey, hash_method: str) -> bytes
-arcanum.verify(message: bytes, signature: bytes, pub_key: PublicKey) -> str
-arcanum.compute_hash(message: bytes | typing.BinaryIO, method_name: str) -> bytes
-arcanum.sign_hash(hash_value: bytes, priv_key: PrivateKey, hash_method: str) -> bytes
-arcanum.find_signature_hash(signature: bytes, pub_key: PublicKey) -> str
+ciphertrust.newkeys(nbits: int, accurate: bool = False, poolsize: int = 1, exponent: int = 65537) -> tuple[PublicKey, PrivateKey]
+ciphertrust.encrypt(message: bytes, pub_key: PublicKey) -> bytes          # PKCS#1 v1.5
+ciphertrust.decrypt(crypto: bytes, priv_key: PrivateKey) -> bytes         # PKCS#1 v1.5
+ciphertrust.sign(message: bytes, priv_key: PrivateKey, hash_method: str) -> bytes
+ciphertrust.verify(message: bytes, signature: bytes, pub_key: PublicKey) -> str
+ciphertrust.compute_hash(message: bytes | typing.BinaryIO, method_name: str) -> bytes
+ciphertrust.sign_hash(hash_value: bytes, priv_key: PrivateKey, hash_method: str) -> bytes
+ciphertrust.find_signature_hash(signature: bytes, pub_key: PublicKey) -> str
 ```
 
 ### Key Classes
 
 ```python
-class arcanum.PublicKey(n: int, e: int):
+class ciphertrust.PublicKey(n: int, e: int):
     def save_pkcs1(self, format: str = "PEM") -> bytes
     @classmethod
     def load_pkcs1(cls, keyfile: bytes, format: str = "PEM") -> PublicKey
@@ -64,7 +64,7 @@ class arcanum.PublicKey(n: int, e: int):
     @classmethod
     def load_pkcs1_openssl_der(cls, keyfile: bytes) -> PublicKey
 
-class arcanum.PrivateKey(n: int, e: int, d: int, p: int, q: int):
+class ciphertrust.PrivateKey(n: int, e: int, d: int, p: int, q: int):
     def save_pkcs1(self, format: str = "PEM") -> bytes
     @classmethod
     def load_pkcs1(cls, keyfile: bytes, format: str = "PEM") -> PrivateKey
@@ -75,34 +75,34 @@ class arcanum.PrivateKey(n: int, e: int, d: int, p: int, q: int):
 ### Exceptions
 
 ```python
-arcanum.pkcs1.CryptoError          # Base exception
-arcanum.pkcs1.DecryptionError      # Decryption failed
-arcanum.pkcs1.VerificationError    # Signature verification failed
+ciphertrust.pkcs1.CryptoError          # Base exception
+ciphertrust.pkcs1.DecryptionError      # Decryption failed
+ciphertrust.pkcs1.VerificationError    # Signature verification failed
 ```
 
 ### Internal Modules
 
 | Module | Purpose |
 |---|---|
-| `arcanum.key` | PublicKey and PrivateKey classes |
-| `arcanum.pkcs1` | PKCS#1 v1.5 encryption, signing, padding |
-| `arcanum.pem` | PEM encoding/decoding |
-| `arcanum.core` | Low-level modular exponentiation |
-| `arcanum.prime` | Miller-Rabin primality testing, prime generation |
-| `arcanum.randnum` | Cryptographically secure random number generation |
-| `arcanum.transform` | Byte ↔ integer transformations |
-| `arcanum.common` | Shared utilities (byte_size, bit_size) |
-| `arcanum.parallel` | Parallel key generation using multiprocessing |
+| `ciphertrust.key` | PublicKey and PrivateKey classes |
+| `ciphertrust.pkcs1` | PKCS#1 v1.5 encryption, signing, padding |
+| `ciphertrust.pem` | PEM encoding/decoding |
+| `ciphertrust.core` | Low-level modular exponentiation |
+| `ciphertrust.prime` | Miller-Rabin primality testing, prime generation |
+| `ciphertrust.randnum` | Cryptographically secure random number generation |
+| `ciphertrust.transform` | Byte ↔ integer transformations |
+| `ciphertrust.common` | Shared utilities (byte_size, bit_size) |
+| `ciphertrust.parallel` | Parallel key generation using multiprocessing |
 
 ### Compatibility Layer
 
 ```python
 # Drop-in migration: change one import
 # Before: import rsa
-# After:  import arcanum as rsa
+# After:  import ciphertrust as rsa
 ```
 
-The `arcanum.compat` module will provide `rsa`-named exports for projects that cannot change import paths via sys.modules patching.
+The `ciphertrust.compat` module will provide `rsa`-named exports for projects that cannot change import paths via sys.modules patching.
 
 ## Improvements Over python-rsa
 
@@ -118,7 +118,7 @@ The `arcanum.compat` module will provide `rsa`-named exports for projects that c
 ## Architecture
 
 ```
-src/arcanum/
+src/ciphertrust/
 ├── __init__.py          # Public API re-exports
 ├── py.typed             # PEP 561 marker
 ├── key.py               # PublicKey, PrivateKey classes
@@ -180,14 +180,14 @@ tests/
 - Benchmarks vs python-rsa
 - CI pipeline (GitHub Actions: lint, type check, test on 3.9-3.13 + PyPy)
 - pyproject.toml configuration (flit or hatchling)
-- PyPI publish as `arcanum`
-- Compatibility test suite: generate keys/signatures with python-rsa, verify with arcanum and vice versa
+- PyPI publish as `ciphertrust`
+- Compatibility test suite: generate keys/signatures with python-rsa, verify with ciphertrust and vice versa
 
 ## Package Metadata
 
 ```toml
 [project]
-name = "arcanum"
+name = "ciphertrust"
 description = "Pure-Python RSA encryption, signing, and key generation — drop-in python-rsa replacement"
 requires-python = ">=3.9"
 license = "MIT"
@@ -202,10 +202,10 @@ classifiers = [
 ## Success Criteria
 
 - [ ] All python-rsa public API functions implemented and tested
-- [ ] Cross-compatibility: keys/signatures generated by python-rsa work with arcanum
+- [ ] Cross-compatibility: keys/signatures generated by python-rsa work with ciphertrust
 - [ ] Zero dependencies, pure Python
 - [ ] Full type annotations, passes strict mypy
 - [ ] NIST/RFC test vectors pass
 - [ ] CI green on Python 3.9–3.13 + PyPy
-- [ ] Published on PyPI as `arcanum`
+- [ ] Published on PyPI as `ciphertrust`
 - [ ] Migration guide in README

@@ -1,8 +1,8 @@
-"""Tests for arcanum.key — key generation and serialization."""
+"""Tests for ciphertrust.key — key generation and serialization."""
 
 import pytest
 
-from arcanum.key import PrivateKey, PublicKey, newkeys
+from ciphertrust.key import PrivateKey, PublicKey, newkeys
 
 
 class TestNewkeys:
@@ -167,7 +167,7 @@ class TestOpenSSL:
 
     def test_openssl_pem_round_trip(self) -> None:
         """Test loading an OpenSSL SubjectPublicKeyInfo PEM key."""
-        from arcanum import pem as pem_mod
+        from ciphertrust import pem as pem_mod
 
         pub, _priv = newkeys(512)
 

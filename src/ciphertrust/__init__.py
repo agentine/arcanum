@@ -1,21 +1,21 @@
-"""Arcanum — a pure-Python RSA library.
+"""Ciphertrust — a pure-Python RSA library.
 
 Provides RSA key generation, PKCS#1 v1.5 and OAEP (v2.1) encryption/decryption,
 signing/verification, and key serialization in PKCS#1/PKCS#8/PEM/DER formats.
 
 Quick start::
 
-    import arcanum
+    import ciphertrust
 
-    pub, priv = arcanum.newkeys(2048)
-    crypto = arcanum.encrypt(b"hello", pub)
-    assert arcanum.decrypt(crypto, priv) == b"hello"
+    pub, priv = ciphertrust.newkeys(2048)
+    crypto = ciphertrust.encrypt(b"hello", pub)
+    assert ciphertrust.decrypt(crypto, priv) == b"hello"
 """
 
 from __future__ import annotations
 
-from arcanum.key import PublicKey, PrivateKey, newkeys
-from arcanum.pkcs1 import (
+from ciphertrust.key import PublicKey, PrivateKey, newkeys
+from ciphertrust.pkcs1 import (
     encrypt,
     decrypt,
     sign,
@@ -29,13 +29,13 @@ from arcanum.pkcs1 import (
     HASH_ASN1,
     HASH_METHODS,
 )
-from arcanum.pkcs1_v2 import (
+from ciphertrust.pkcs1_v2 import (
     encrypt as oaep_encrypt,
     decrypt as oaep_decrypt,
 )
-from arcanum.common import bit_size, byte_size
-from arcanum.transform import bytes_to_int, int_to_bytes
-from arcanum.pem import load_pem, save_pem
+from ciphertrust.common import bit_size, byte_size
+from ciphertrust.transform import bytes_to_int, int_to_bytes
+from ciphertrust.pem import load_pem, save_pem
 
 __version__ = "0.1.0"
 

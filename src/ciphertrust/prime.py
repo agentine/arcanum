@@ -1,12 +1,12 @@
 """Prime number generation and primality testing.
 
 Uses Miller-Rabin primality testing with trial division for efficiency.
-All randomness comes from the ``secrets`` module via :mod:`arcanum.randnum`.
+All randomness comes from the ``secrets`` module via :mod:`ciphertrust.randnum`.
 """
 
 import math
 
-from arcanum import randnum
+from ciphertrust import randnum
 
 # First 2000 primes for trial division (sieved at import time).
 _SMALL_PRIMES: list[int] = []

@@ -5,8 +5,8 @@ import multiprocessing
 
 import pytest
 
-from arcanum import key, pkcs1, common, transform, pem
-from arcanum.key import PublicKey, PrivateKey, newkeys
+from ciphertrust import key, pkcs1, common, transform, pem
+from ciphertrust.key import PublicKey, PrivateKey, newkeys
 
 
 # ---------------------------------------------------------------------------
@@ -31,7 +31,7 @@ def keypair_1024():
 
 class TestOAEP:
     def test_encrypt_decrypt_roundtrip(self, keypair_1024):
-        from arcanum.pkcs1_v2 import encrypt, decrypt
+        from ciphertrust.pkcs1_v2 import encrypt, decrypt
         pub, priv = keypair_1024
         message = b"hello OAEP"
         ciphertext = encrypt(message, pub)
@@ -39,14 +39,14 @@ class TestOAEP:
         assert plaintext == message
 
     def test_encrypt_decrypt_empty_message(self, keypair_1024):
-        from arcanum.pkcs1_v2 import encrypt, decrypt
+        from ciphertrust.pkcs1_v2 import encrypt, decrypt
         pub, priv = keypair_1024
         ciphertext = encrypt(b"", pub)
         plaintext = decrypt(ciphertext, priv)
         assert plaintext == b""
 
     def test_encrypt_decrypt_max_length(self, keypair_1024):
-        from arcanum.pkcs1_v2 import encrypt, decrypt
+        from ciphertrust.pkcs1_v2 import encrypt, decrypt
         pub, priv = keypair_1024
         k = common.byte_size(pub.n)
         h_len = 32  # SHA-256
@@ -57,7 +57,7 @@ class TestOAEP:
         assert plaintext == message
 
     def test_encrypt_message_too_long(self, keypair_1024):
-        from arcanum.pkcs1_v2 import encrypt
+        from ciphertrust.pkcs1_v2 import encrypt
         pub, _ = keypair_1024
         k = common.byte_size(pub.n)
         h_len = 32
@@ -66,8 +66,8 @@ class TestOAEP:
             encrypt(b"x" * (max_len + 1), pub)
 
     def test_decrypt_wrong_key(self, keypair_1024):
-        from arcanum.pkcs1_v2 import encrypt, decrypt
-        from arcanum.pkcs1 import DecryptionError
+        from ciphertrust.pkcs1_v2 import encrypt, decrypt
+        from ciphertrust.pkcs1 import DecryptionError
         pub, _ = keypair_1024
         _, other_priv = newkeys(1024)
         ciphertext = encrypt(b"secret", pub)
@@ -75,8 +75,8 @@ class TestOAEP:
             decrypt(ciphertext, other_priv)
 
     def test_decrypt_corrupted_ciphertext(self, keypair_1024):
-        from arcanum.pkcs1_v2 import encrypt, decrypt
-        from arcanum.pkcs1 import DecryptionError
+        from ciphertrust.pkcs1_v2 import encrypt, decrypt
+        from ciphertrust.pkcs1 import DecryptionError
         pub, priv = keypair_1024
         ciphertext = encrypt(b"test", pub)
         corrupted = bytes([ciphertext[0] ^ 0xFF]) + ciphertext[1:]
@@ -84,14 +84,14 @@ class TestOAEP:
             decrypt(corrupted, priv)
 
     def test_decrypt_wrong_length(self, keypair_1024):
-        from arcanum.pkcs1_v2 import decrypt
-        from arcanum.pkcs1 import DecryptionError
+        from ciphertrust.pkcs1_v2 import decrypt
+        from ciphertrust.pkcs1 import DecryptionError
         _, priv = keypair_1024
         with pytest.raises(DecryptionError):
             decrypt(b"short", priv)
 
     def test_encrypt_with_label(self, keypair_1024):
-        from arcanum.pkcs1_v2 import encrypt, decrypt
+        from ciphertrust.pkcs1_v2 import encrypt, decrypt
         pub, priv = keypair_1024
         message = b"labeled data"
         label = b"my-label"
@@ -100,15 +100,15 @@ class TestOAEP:
         assert plaintext == message
 
     def test_decrypt_wrong_label(self, keypair_1024):
-        from arcanum.pkcs1_v2 import encrypt, decrypt
-        from arcanum.pkcs1 import DecryptionError
+        from ciphertrust.pkcs1_v2 import encrypt, decrypt
+        from ciphertrust.pkcs1 import DecryptionError
         pub, priv = keypair_1024
         ciphertext = encrypt(b"data", pub, label=b"correct")
         with pytest.raises(DecryptionError):
             decrypt(ciphertext, priv, label=b"wrong")
 
     def test_ciphertext_is_different_each_time(self, keypair_1024):
-        from arcanum.pkcs1_v2 import encrypt
+        from ciphertrust.pkcs1_v2 import encrypt
         pub, _ = keypair_1024
         c1 = encrypt(b"same", pub)
         c2 = encrypt(b"same", pub)
@@ -117,18 +117,18 @@ class TestOAEP:
 
 class TestMGF1:
     def test_mgf1_output_length(self):
-        from arcanum.pkcs1_v2 import _mgf1
+        from ciphertrust.pkcs1_v2 import _mgf1
         seed = b"test seed"
         mask = _mgf1(seed, 50)
         assert len(mask) == 50
 
     def test_mgf1_deterministic(self):
-        from arcanum.pkcs1_v2 import _mgf1
+        from ciphertrust.pkcs1_v2 import _mgf1
         seed = b"deterministic"
         assert _mgf1(seed, 32) == _mgf1(seed, 32)
 
     def test_mgf1_different_seeds(self):
-        from arcanum.pkcs1_v2 import _mgf1
+        from ciphertrust.pkcs1_v2 import _mgf1
         assert _mgf1(b"seed1", 32) != _mgf1(b"seed2", 32)
 
 
@@ -158,7 +158,7 @@ class TestParallelKeygen:
 
     def test_parallel_module_find_p_q(self):
         """Direct test of _find_p_q_parallel."""
-        from arcanum.parallel import _find_p_q_parallel
+        from ciphertrust.parallel import _find_p_q_parallel
         p, q = _find_p_q_parallel(256, poolsize=2)
         assert p > q
         assert p != q
@@ -232,8 +232,8 @@ class TestPKCS8:
 
 class TestCompat:
     def test_import_as_rsa(self):
-        """import arcanum.compat should provide python-rsa-like API."""
-        from arcanum import compat
+        """import ciphertrust.compat should provide python-rsa-like API."""
+        from ciphertrust import compat
         assert hasattr(compat, "newkeys")
         assert hasattr(compat, "encrypt")
         assert hasattr(compat, "decrypt")
@@ -243,44 +243,44 @@ class TestCompat:
         assert hasattr(compat, "PrivateKey")
 
     def test_compat_newkeys_encrypt_decrypt(self):
-        from arcanum import compat
+        from ciphertrust import compat
         pub, priv = compat.newkeys(512)
         ct = compat.encrypt(b"compat test", pub)
         pt = compat.decrypt(ct, priv)
         assert pt == b"compat test"
 
     def test_compat_sign_verify(self):
-        from arcanum import compat
+        from ciphertrust import compat
         pub, priv = compat.newkeys(512)
         sig = compat.sign(b"message", priv, "SHA-256")
         assert compat.verify(b"message", sig, pub) == "SHA-256"
 
     def test_compat_oaep(self):
-        from arcanum import compat
+        from ciphertrust import compat
         pub, priv = compat.newkeys(1024)
         ct = compat.oaep_encrypt(b"oaep compat", pub)
         pt = compat.oaep_decrypt(ct, priv)
         assert pt == b"oaep compat"
 
     def test_compat_utilities(self):
-        from arcanum import compat
+        from ciphertrust import compat
         assert compat.bit_size(255) == 8
         assert compat.byte_size(256) == 2
         assert compat.bytes_to_int(b"\x01\x00") == 256
         assert compat.int_to_bytes(256) == b"\x01\x00"
 
     def test_compat_exceptions(self):
-        from arcanum import compat
+        from ciphertrust import compat
         assert issubclass(compat.DecryptionError, compat.CryptoError)
         assert issubclass(compat.VerificationError, compat.CryptoError)
 
     def test_compat_all_exports(self):
-        from arcanum import compat
+        from ciphertrust import compat
         for name in compat.__all__:
             assert hasattr(compat, name), f"Missing export: {name}"
 
     def test_compat_pem_functions(self):
-        from arcanum import compat
+        from ciphertrust import compat
         der = b"\x30\x03\x02\x01\x42"  # A tiny DER SEQUENCE
         pem_data = compat.save_pem(der, "TEST")
         assert b"-----BEGIN TEST-----" in pem_data
@@ -295,43 +295,43 @@ class TestCompat:
 
 class TestPublicAPI:
     def test_version(self):
-        import arcanum
-        assert hasattr(arcanum, "__version__")
-        assert arcanum.__version__ == "0.1.0"
+        import ciphertrust
+        assert hasattr(ciphertrust, "__version__")
+        assert ciphertrust.__version__ == "0.1.0"
 
     def test_all_exports_exist(self):
-        import arcanum
-        for name in arcanum.__all__:
-            assert hasattr(arcanum, name), f"Missing export: {name}"
+        import ciphertrust
+        for name in ciphertrust.__all__:
+            assert hasattr(ciphertrust, name), f"Missing export: {name}"
 
     def test_top_level_encrypt_decrypt(self):
-        import arcanum
-        pub, priv = arcanum.newkeys(512)
-        ct = arcanum.encrypt(b"top-level", pub)
-        pt = arcanum.decrypt(ct, priv)
+        import ciphertrust
+        pub, priv = ciphertrust.newkeys(512)
+        ct = ciphertrust.encrypt(b"top-level", pub)
+        pt = ciphertrust.decrypt(ct, priv)
         assert pt == b"top-level"
 
     def test_top_level_sign_verify(self):
-        import arcanum
-        pub, priv = arcanum.newkeys(512)
-        sig = arcanum.sign(b"sign me", priv, "SHA-256")
-        assert arcanum.verify(b"sign me", sig, pub) == "SHA-256"
+        import ciphertrust
+        pub, priv = ciphertrust.newkeys(512)
+        sig = ciphertrust.sign(b"sign me", priv, "SHA-256")
+        assert ciphertrust.verify(b"sign me", sig, pub) == "SHA-256"
 
     def test_top_level_oaep(self):
-        import arcanum
-        pub, priv = arcanum.newkeys(1024)
-        ct = arcanum.oaep_encrypt(b"oaep top", pub)
-        pt = arcanum.oaep_decrypt(ct, priv)
+        import ciphertrust
+        pub, priv = ciphertrust.newkeys(1024)
+        ct = ciphertrust.oaep_encrypt(b"oaep top", pub)
+        pt = ciphertrust.oaep_decrypt(ct, priv)
         assert pt == b"oaep top"
 
     def test_top_level_exceptions(self):
-        import arcanum
-        assert issubclass(arcanum.DecryptionError, arcanum.CryptoError)
-        assert issubclass(arcanum.VerificationError, arcanum.CryptoError)
+        import ciphertrust
+        assert issubclass(ciphertrust.DecryptionError, ciphertrust.CryptoError)
+        assert issubclass(ciphertrust.VerificationError, ciphertrust.CryptoError)
 
     def test_top_level_utilities(self):
-        import arcanum
-        assert arcanum.bit_size(1023) == 10
-        assert arcanum.byte_size(1023) == 2
-        assert arcanum.bytes_to_int(b"\xff") == 255
-        assert arcanum.int_to_bytes(255) == b"\xff"
+        import ciphertrust
+        assert ciphertrust.bit_size(1023) == 10
+        assert ciphertrust.byte_size(1023) == 2
+        assert ciphertrust.bytes_to_int(b"\xff") == 255
+        assert ciphertrust.int_to_bytes(255) == b"\xff"

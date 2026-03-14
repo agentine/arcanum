@@ -7,7 +7,7 @@ and SEQUENCE tags (no external dependencies).
 
 from __future__ import annotations
 
-from arcanum import common, pem, prime, randnum
+from ciphertrust import common, pem, prime, randnum
 
 # ---------------------------------------------------------------------------
 # ASN.1 DER encoding helpers (INTEGER + SEQUENCE only)
@@ -547,7 +547,7 @@ def newkeys(
         raise ValueError("Key size must be at least 16 bits")
 
     if poolsize > 1:
-        from arcanum.parallel import _find_p_q_parallel
+        from ciphertrust.parallel import _find_p_q_parallel
         p, q = _find_p_q_parallel(nbits, poolsize, accurate=accurate, exponent=exponent)
     else:
         p, q = _find_p_q(nbits, accurate=accurate, exponent=exponent)
