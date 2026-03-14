@@ -43,9 +43,7 @@ def int_to_bytes(number: int, fill_size: int = 0) -> bytes:
 
     if fill_size > 0:
         if len(raw) > fill_size:
-            raise OverflowError(
-                f"Need {len(raw)} bytes for number, but fill_size is {fill_size}"
-            )
+            raise OverflowError(f"Need {len(raw)} bytes for number, but fill_size is {fill_size}")
         raw = raw.rjust(fill_size, b"\x00")
 
     return raw

@@ -48,46 +48,116 @@ class VerificationError(CryptoError):
 # We store everything up to (but not including) the hash value itself.
 
 HASH_ASN1: dict[str, bytes] = {
-    "MD5": bytes([
-        0x30, 0x20,  # SEQUENCE (32 bytes)
-        0x30, 0x0C,  # SEQUENCE (12 bytes)
-        0x06, 0x08,  # OID (8 bytes)
-        0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x02, 0x05,  # md5
-        0x05, 0x00,  # NULL
-        0x04, 0x10,  # OCTET STRING (16 bytes)
-    ]),
-    "SHA-1": bytes([
-        0x30, 0x21,  # SEQUENCE (33 bytes)
-        0x30, 0x09,  # SEQUENCE (9 bytes)
-        0x06, 0x05,  # OID (5 bytes)
-        0x2B, 0x0E, 0x03, 0x02, 0x1A,  # sha1
-        0x05, 0x00,  # NULL
-        0x04, 0x14,  # OCTET STRING (20 bytes)
-    ]),
-    "SHA-256": bytes([
-        0x30, 0x31,  # SEQUENCE (49 bytes)
-        0x30, 0x0D,  # SEQUENCE (13 bytes)
-        0x06, 0x09,  # OID (9 bytes)
-        0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x01,  # sha256
-        0x05, 0x00,  # NULL
-        0x04, 0x20,  # OCTET STRING (32 bytes)
-    ]),
-    "SHA-384": bytes([
-        0x30, 0x41,  # SEQUENCE (65 bytes)
-        0x30, 0x0D,  # SEQUENCE (13 bytes)
-        0x06, 0x09,  # OID (9 bytes)
-        0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x02,  # sha384
-        0x05, 0x00,  # NULL
-        0x04, 0x30,  # OCTET STRING (48 bytes)
-    ]),
-    "SHA-512": bytes([
-        0x30, 0x51,  # SEQUENCE (81 bytes)
-        0x30, 0x0D,  # SEQUENCE (13 bytes)
-        0x06, 0x09,  # OID (9 bytes)
-        0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x03,  # sha512
-        0x05, 0x00,  # NULL
-        0x04, 0x40,  # OCTET STRING (64 bytes)
-    ]),
+    "MD5": bytes(
+        [
+            0x30,
+            0x20,  # SEQUENCE (32 bytes)
+            0x30,
+            0x0C,  # SEQUENCE (12 bytes)
+            0x06,
+            0x08,  # OID (8 bytes)
+            0x2A,
+            0x86,
+            0x48,
+            0x86,
+            0xF7,
+            0x0D,
+            0x02,
+            0x05,  # md5
+            0x05,
+            0x00,  # NULL
+            0x04,
+            0x10,  # OCTET STRING (16 bytes)
+        ]
+    ),
+    "SHA-1": bytes(
+        [
+            0x30,
+            0x21,  # SEQUENCE (33 bytes)
+            0x30,
+            0x09,  # SEQUENCE (9 bytes)
+            0x06,
+            0x05,  # OID (5 bytes)
+            0x2B,
+            0x0E,
+            0x03,
+            0x02,
+            0x1A,  # sha1
+            0x05,
+            0x00,  # NULL
+            0x04,
+            0x14,  # OCTET STRING (20 bytes)
+        ]
+    ),
+    "SHA-256": bytes(
+        [
+            0x30,
+            0x31,  # SEQUENCE (49 bytes)
+            0x30,
+            0x0D,  # SEQUENCE (13 bytes)
+            0x06,
+            0x09,  # OID (9 bytes)
+            0x60,
+            0x86,
+            0x48,
+            0x01,
+            0x65,
+            0x03,
+            0x04,
+            0x02,
+            0x01,  # sha256
+            0x05,
+            0x00,  # NULL
+            0x04,
+            0x20,  # OCTET STRING (32 bytes)
+        ]
+    ),
+    "SHA-384": bytes(
+        [
+            0x30,
+            0x41,  # SEQUENCE (65 bytes)
+            0x30,
+            0x0D,  # SEQUENCE (13 bytes)
+            0x06,
+            0x09,  # OID (9 bytes)
+            0x60,
+            0x86,
+            0x48,
+            0x01,
+            0x65,
+            0x03,
+            0x04,
+            0x02,
+            0x02,  # sha384
+            0x05,
+            0x00,  # NULL
+            0x04,
+            0x30,  # OCTET STRING (48 bytes)
+        ]
+    ),
+    "SHA-512": bytes(
+        [
+            0x30,
+            0x51,  # SEQUENCE (81 bytes)
+            0x30,
+            0x0D,  # SEQUENCE (13 bytes)
+            0x06,
+            0x09,  # OID (9 bytes)
+            0x60,
+            0x86,
+            0x48,
+            0x01,
+            0x65,
+            0x03,
+            0x04,
+            0x02,
+            0x03,  # sha512
+            0x05,
+            0x00,  # NULL
+            0x04,
+            0x40,  # OCTET STRING (64 bytes)
+        ]
+    ),
 }
 
 # Expected digest sizes in bytes per algorithm.
@@ -312,7 +382,7 @@ def decrypt(crypto: bytes, priv_key: PrivateKey) -> bytes:
     if valid != 1:
         raise DecryptionError("Decryption failed")
 
-    return padded[sep_idx + 1:]
+    return padded[sep_idx + 1 :]
 
 
 # ---------------------------------------------------------------------------
@@ -369,8 +439,7 @@ def sign_hash(
     """
     if hash_method not in HASH_ASN1:
         raise ValueError(
-            f"Unsupported hash method: {hash_method!r}. "
-            f"Supported: {', '.join(sorted(HASH_ASN1))}"
+            f"Unsupported hash method: {hash_method!r}. Supported: {', '.join(sorted(HASH_ASN1))}"
         )
 
     expected_len = HASH_LENGTHS[hash_method]
@@ -443,14 +512,14 @@ def verify(
     if sep_idx < 10:
         raise VerificationError("Verification failed")
 
-    digest_info = padded[sep_idx + 1:]
+    digest_info = padded[sep_idx + 1 :]
 
     # Try each hash algorithm to find which one matches
     for hash_name, asn1_prefix in HASH_ASN1.items():
         if not digest_info.startswith(asn1_prefix):
             continue
 
-        hash_from_sig = digest_info[len(asn1_prefix):]
+        hash_from_sig = digest_info[len(asn1_prefix) :]
         msg_hash = compute_hash(message, hash_name)
 
         # Constant-time comparison
@@ -500,7 +569,7 @@ def find_signature_hash(
     except ValueError:
         raise VerificationError("Verification failed") from None
 
-    digest_info = padded[sep_idx + 1:]
+    digest_info = padded[sep_idx + 1 :]
 
     # Find which hash algorithm's ASN.1 prefix matches
     for hash_name, asn1_prefix in HASH_ASN1.items():

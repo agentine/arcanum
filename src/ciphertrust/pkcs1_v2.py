@@ -13,10 +13,10 @@ import secrets
 from ciphertrust import common, transform
 from ciphertrust.key import PrivateKey, PublicKey
 
-
 # ---------------------------------------------------------------------------
 # MGF1 mask generation function (RFC 8017, Appendix B.2.1)
 # ---------------------------------------------------------------------------
+
 
 def _mgf1(seed: bytes, length: int, hash_name: str = "sha256") -> bytes:
     """Mask Generation Function 1 (MGF1).
@@ -44,6 +44,7 @@ def _mgf1(seed: bytes, length: int, hash_name: str = "sha256") -> bytes:
 # ---------------------------------------------------------------------------
 # OAEP Encrypt / Decrypt
 # ---------------------------------------------------------------------------
+
 
 def encrypt(
     message: bytes,

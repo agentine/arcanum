@@ -80,9 +80,7 @@ def _decode_der_sequence(data: bytes, offset: int = 0) -> tuple[bytes, int]:
 # ---------------------------------------------------------------------------
 # OID for rsaEncryption: 1.2.840.113549.1.1.1
 # ---------------------------------------------------------------------------
-_OID_RSA_ENCRYPTION = bytes(
-    [0x06, 0x09, 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x01]
-)
+_OID_RSA_ENCRYPTION = bytes([0x06, 0x09, 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x01])
 
 # NULL parameter
 _DER_NULL = bytes([0x05, 0x00])
@@ -200,9 +198,7 @@ class PublicKey(AbstractKey):
             raise ValueError("Expected AlgorithmIdentifier SEQUENCE")
         alg_data, offset = _decode_der_sequence(outer_data, offset)
         if not alg_data.startswith(_OID_RSA_ENCRYPTION):
-            raise ValueError(
-                "AlgorithmIdentifier is not rsaEncryption"
-            )
+            raise ValueError("AlgorithmIdentifier is not rsaEncryption")
 
         # BIT STRING containing the RSAPublicKey
         if outer_data[offset] != 0x03:
@@ -431,9 +427,7 @@ class PrivateKey(AbstractKey):
             raise ValueError("Expected AlgorithmIdentifier SEQUENCE")
         alg_data, offset = _decode_der_sequence(outer_data, offset)
         if not alg_data.startswith(_OID_RSA_ENCRYPTION):
-            raise ValueError(
-                "PKCS#8 AlgorithmIdentifier is not rsaEncryption"
-            )
+            raise ValueError("PKCS#8 AlgorithmIdentifier is not rsaEncryption")
 
         # OCTET STRING containing the PKCS#1 RSAPrivateKey
         if outer_data[offset] != 0x04:
@@ -548,6 +542,7 @@ def newkeys(
 
     if poolsize > 1:
         from ciphertrust.parallel import _find_p_q_parallel
+
         p, q = _find_p_q_parallel(nbits, poolsize, accurate=accurate, exponent=exponent)
     else:
         p, q = _find_p_q(nbits, accurate=accurate, exponent=exponent)

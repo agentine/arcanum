@@ -67,7 +67,7 @@ def newkeys(
     accurate: bool = False,
     poolsize: int = 2,
     exponent: int = 65537,
-) -> "tuple[PublicKey, PrivateKey]":
+) -> tuple[PublicKey, PrivateKey]:
     """Generate an RSA key pair using parallel prime generation.
 
     Args:
@@ -79,7 +79,7 @@ def newkeys(
     Returns:
         A tuple of ``(PublicKey, PrivateKey)``.
     """
-    from ciphertrust.key import PublicKey, PrivateKey
+    from ciphertrust.key import PrivateKey, PublicKey
 
     if nbits < 16:
         raise ValueError("Key size must be at least 16 bits")
