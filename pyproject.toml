@@ -52,5 +52,8 @@ testpaths = ["tests"]
 
 [dependency-groups]
 dev = [
+    "pytest",
+    "mypy",
+    "ruff",
     "rsa>=4.9.1",
 ]

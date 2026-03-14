@@ -433,7 +433,7 @@ def verify(
     try:
         sep_idx = padded.index(b"\x00", 2)
     except ValueError:
-        raise VerificationError("Verification failed")
+        raise VerificationError("Verification failed") from None
 
     # Check that the padding is all 0xFF bytes
     if padded[2:sep_idx] != b"\xff" * (sep_idx - 2):
@@ -498,7 +498,7 @@ def find_signature_hash(
     try:
         sep_idx = padded.index(b"\x00", 2)
     except ValueError:
-        raise VerificationError("Verification failed")
+        raise VerificationError("Verification failed") from None
 
     digest_info = padded[sep_idx + 1:]
 

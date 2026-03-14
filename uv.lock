@@ -21,7 +21,11 @@ dev = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "mypy" },
+    { name = "pytest", version = "8.4.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
+    { name = "pytest", version = "9.0.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
     { name = "rsa" },
+    { name = "ruff" },
 ]
 
 [package.metadata]
@@ -33,7 +37,12 @@ requires-dist = [
 provides-extras = ["dev"]
 
 [package.metadata.requires-dev]
-dev = [{ name = "rsa", specifier = ">=4.9.1" }]
+dev = [
+    { name = "mypy" },
+    { name = "pytest" },
+    { name = "rsa", specifier = ">=4.9.1" },
+    { name = "ruff" },
+]
 
 [[package]]
 name = "colorama"
