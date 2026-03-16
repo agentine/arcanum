@@ -84,10 +84,10 @@ def encrypt(
     seed = secrets.token_bytes(h_len)
 
     db_mask = _mgf1(seed, k - h_len - 1, hash_name)
-    masked_db = bytes(a ^ b for a, b in zip(db, db_mask))
+    masked_db = bytes(a ^ b for a, b in zip(db, db_mask, strict=True))
 
     seed_mask = _mgf1(masked_db, h_len, hash_name)
-    masked_seed = bytes(a ^ b for a, b in zip(seed, seed_mask))
+    masked_seed = bytes(a ^ b for a, b in zip(seed, seed_mask, strict=True))
 
     em = b"\x00" + masked_seed + masked_db
 
@@ -139,10 +139,10 @@ def decrypt(
     masked_db = em[1 + h_len :]
 
     seed_mask = _mgf1(masked_db, h_len, hash_name)
-    seed = bytes(a ^ b for a, b in zip(masked_seed, seed_mask))
+    seed = bytes(a ^ b for a, b in zip(masked_seed, seed_mask, strict=True))
 
     db_mask = _mgf1(seed, k - h_len - 1, hash_name)
-    db = bytes(a ^ b for a, b in zip(masked_db, db_mask))
+    db = bytes(a ^ b for a, b in zip(masked_db, db_mask, strict=True))
 
     l_hash = hashlib.new(hash_name, label).digest()
     l_hash_prime = db[:h_len]
