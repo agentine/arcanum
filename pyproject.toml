@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "ciphertrust"
 version = "0.1.0"
 description = "Pure-Python RSA encryption, signing, and key generation — drop-in python-rsa replacement"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = "MIT"
 keywords = ["rsa", "crypto", "encryption", "signing", "pkcs1", "pure-python"]
 classifiers = [
@@ -14,7 +14,6 @@ classifiers = [
     "Topic :: Security :: Cryptography",
     "Typing :: Typed",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -38,10 +37,10 @@ packages = ["src/ciphertrust"]
 
 [tool.mypy]
 strict = true
-python_version = "3.9"
+python_version = "3.10"
 
 [tool.ruff]
-target-version = "py39"
+target-version = "py310"
 line-length = 100
 
 [tool.ruff.lint]
